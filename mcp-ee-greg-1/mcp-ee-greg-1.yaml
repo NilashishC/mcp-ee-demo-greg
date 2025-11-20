@@ -1,0 +1,53 @@
+---
+version: 3
+
+images:
+  base_image:
+    name: 'registry.redhat.io/ansible-automation-platform-25/ee-minimal-rhel9:latest'
+
+dependencies:
+  python:
+    - ansible-pylibssh>1.2.0
+    - requests>2.1.0
+    - pydantic>=2.0.0
+  system:
+    - libssh-devel
+  galaxy:
+    collections:
+      - name: cisco.nxos
+        version: 2.0.1
+      - name: ansible.windows
+      - name: community.kubernetes
+      - name: cisco.ios
+        version: 2.0.0
+      - name: amazon.aws
+      - name: namespace.name
+        version: 1.0.0
+        type: galaxy
+        signatures:
+          - https://examplehost.com/detached_signature.asc
+          - file:///path/to/local/detached_signature.asc
+      - name: ansible.mcp_builder
+      - name: ansible.mcp
+
+additional_build_files:
+  - src: ./ansible.cfg
+    dest: configs
+  - src: ./mcp_vars.yaml
+    dest: configs
+options:
+  package_manager_path: /usr/bin/microdnf
+additional_build_steps:
+  prepend_base:
+    - RUN dnf update
+    - RUN whoami
+    - COPY _build/configs/ansible.cfg /etc/ansible/ansible.cfg
+    - COPY _build/configs/mcp_vars.yaml /tmp/mcp_vars.yaml
+    - COPY _build/configs/ansible.cfg /etc/ansible/ansible.cfg
+    - COPY _build/configs/mcp_vars.yaml /tmp/mcp_vars.yaml
+  append_final:
+    - RUN ansible-playbook ansible.mcp_builder.install_mcp -e mcp_servers=azure_mcp,aws_core_mcp,aws_ccapi_mcp,aws_cdk_mcp,github_mcp -e @/tmp/mcp_vars.yaml
+    - RUN ansible-playbook ansible.mcp_builder.install_mcp -e mcp_servers=azure_mcp,aws_core_mcp,aws_ccapi_mcp,aws_cdk_mcp,github_mcp -e @/tmp/mcp_vars.yaml
+    - RUN pwd
+    - RUN rm -f /etc/ansible/ansible.cfg /tmp/mcp_vars.yaml
+    - RUN rm -f /etc/ansible/ansible.cfg /tmp/mcp_vars.yaml

@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: mcp-ee-greg-1
+  description: MCP EE 2
+  tags:
+    - execution-environment
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/managed-by-location: github.com?repo=mcp-ee-demo-greg&owner=NilashishC
+    backstage.io/source-template: template:default/mcp-ee-greg
+spec:
+  type: execution-environment
+  owner: user:default/admin
+  lifecycle: production
